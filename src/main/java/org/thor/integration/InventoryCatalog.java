@@ -1,6 +1,11 @@
-package org.thor.model;
+package org.thor.integration;
+
+import org.thor.model.DatabaseFailureException;
+import org.thor.model.InvalidItemIdException;
+import org.thor.model.ItemType;
 
 import java.util.ArrayList;
+
 
 /**
  * Database containing all avaliable item-Types in store and their data.
@@ -11,7 +16,6 @@ import java.util.ArrayList;
 public class InventoryCatalog {
 
     private final ArrayList<ItemType> items;
-    //private ItemType itemType;
 
     public InventoryCatalog() {
         items = new ArrayList<>();
@@ -35,21 +39,20 @@ public class InventoryCatalog {
      *
      * @param itemId   ItemId of the requested  item.
      * @param quantity Quantity of the specified item.
+     * @throws InvalidItemIdException   if users enters wrong parameter, an failure message is sent.
+     * @throws DatabaseFailureException if database can not be found.
      */
-    public ItemType getItemById(String itemId, int quantity) {
+    public ItemType getItemById(String itemId, int quantity) throws InvalidItemIdException, DatabaseFailureException {
+        if (itemId.equals("DBTest")) {
+            throw new DatabaseFailureException();
+        }
         for (ItemType currentItemType : items) {
             if (currentItemType.getItemId().equals(itemId)) {
                 ItemType itemTypeToReturn = new ItemType(currentItemType);
-                itemTypeToReturn.addAndSubbToQuantity(quantity);
+                itemTypeToReturn.addAndSubToQuantity(quantity);
                 return new ItemType(itemTypeToReturn);
             }
         }
-        return null;
+        throw new InvalidItemIdException();
     }
-
-    //Alternative flow always true for now , should not be considered in seminar 3.
-    public boolean validateItemById(String itemId) {
-        return true;
-    }
-
 }

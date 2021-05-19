@@ -5,17 +5,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.*;
-
 public class ItemListTest {
 
     private ItemList itemList;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         this.itemList = new ItemList();
         ItemType item = new ItemType("331dfsef", 13.37, 12, "Delikat kladdkaka", 42);
         this.itemList.addItemType(item);

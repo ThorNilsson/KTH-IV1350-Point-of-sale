@@ -1,22 +1,23 @@
 package org.thor.controller;
 
 import org.thor.integration.*;
-import org.thor.model.InventoryCatalog;
-import org.thor.model.Payment;
-import org.thor.model.Receipt;
-import org.thor.model.Sale;
+import org.thor.model.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents the controller
  */
 public class Controller {
-
+    private final List<SaleObserver> saleObserverList = new ArrayList<SaleObserver>();
     private final Register register;
     private final ExternalAccountingSystem externalAccountingSystem;
     private final ExternalInventorySystem externalInventorySystem;
     private final Printer printer;
     private final InventoryCatalog inventoryCatalog;
     private final DiscountCatalog discountCatalog;
+    private final CustomerCatalog customerCatalog;
     private Sale sale = new Sale();
 
     /**
@@ -29,20 +30,20 @@ public class Controller {
      * @param inventoryCatalog         an object of InventoryCatalog.
      * @param discountCatalog          an object of DiscountCatalog.
      */
-    public Controller(Register register, ExternalAccountingSystem externalAccountingSystem, ExternalInventorySystem externalInventorySystem, Printer printer, InventoryCatalog inventoryCatalog, DiscountCatalog discountCatalog) {
+    public Controller(Register register, ExternalAccountingSystem externalAccountingSystem, ExternalInventorySystem externalInventorySystem, Printer printer, InventoryCatalog inventoryCatalog, DiscountCatalog discountCatalog, CustomerCatalog customerCatalog) {
         this.register = register;
         this.externalAccountingSystem = externalAccountingSystem;
         this.externalInventorySystem = externalInventorySystem;
         this.printer = printer;
         this.inventoryCatalog = inventoryCatalog;
         this.discountCatalog = discountCatalog;
+        this.customerCatalog = customerCatalog;
     }
 
     /**
      * Starts a new sale.
      */
     public void startNewSale() {
-        System.out.println("New Sale Started");
         this.sale = new Sale();
     }
 
@@ -52,9 +53,9 @@ public class Controller {
      * @param itemId       a string representing the item.
      * @param itemQuantity the quantity of the specific item.
      * @return always true in our case considering the item will always be in the system.
+     * @throws IllegalArgumentException if wrong parameter is typed in, a failure message is sent to the user
      */
-    public boolean enterItem(String itemId, int itemQuantity) {
-        //boolean isItemIdValid = enterItem(itemId, itemQuantity);
+    public boolean enterItem(String itemId, int itemQuantity) throws InvalidItemIdException, DatabaseFailureException {
         sale.enterItem(itemId, itemQuantity);
         return true;
     }
@@ -90,13 +91,45 @@ public class Controller {
         register.deposit(payment);
         System.out.println("\n\n");
         printer.printReceipt(receipt);
+        notifyObservers(payment.getAmountToPay());
     }
 
     /**
-     * Omitted in seminar 3.
+     * Notifies observers when a sale is ended.
+     *
+     * @param saleTotal will be sent to be part of the totalRevenue
      */
-    public boolean discountRequest(String customerId) {
-        return false;
+    public void notifyObservers(double saleTotal) {
+        for (SaleObserver saleObserver : saleObserverList) {
+            saleObserver.updateTotalRevenue(saleTotal);
+        }
+    }
+
+    /**
+     * Adds a sale observer tot the observers list.
+     *
+     * @param saleobserver representing a saleobserver
+     */
+    public void addSaleObserver(SaleObserver saleobserver) {
+        this.saleObserverList.add(saleobserver);
+    }
+
+    /**
+     * Presents the avaliable discounts in text form.
+     *
+     * @param customerId a string representing a customer.
+     */
+    public String discountRequest(String customerId) {
+        return discountCatalog.getDiscountByCustomerId(customerCatalog.getCustomerById(customerId), sale.getItemList());
+    }
+
+    /**
+     * Applies available discounts.
+     *
+     * @param customerId a string representing a customer.
+     */
+    public void applyDiscount(String customerId) {
+        discountCatalog.applyDiscountByCustomer(customerCatalog.getCustomerById(customerId), sale.getItemList());
     }
 
 

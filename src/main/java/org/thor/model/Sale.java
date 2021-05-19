@@ -1,11 +1,13 @@
 package org.thor.model;
 
+import org.thor.integration.InventoryCatalog;
+
 /**
  * Represents an sale.
  */
 public class Sale {
 
-    private InventoryCatalog inventoryCatalog = new InventoryCatalog();
+    private final InventoryCatalog inventoryCatalog = new InventoryCatalog();
     private ItemList itemList = new ItemList();
 
     /**
@@ -19,26 +21,22 @@ public class Sale {
      *
      * @param itemId   specific item identifier.
      * @param quantity quantity of specific item.
+     * @return return if the item is in the list of not.
      */
-    public boolean enterItem(String itemId, int quantity) {
+    public boolean enterItem(String itemId, int quantity) throws InvalidItemIdException, DatabaseFailureException {
         boolean isItemInList = itemList.isItemTypeInList(itemId);
         if (isItemInList)
             itemList.addItemByQuantity(itemId, quantity);
         else {
-            itemList.addItemType(inventoryCatalog.getItemById(itemId, quantity));
+            try{
+                itemList.addItemType(inventoryCatalog.getItemById(itemId, quantity));
+            }catch (InvalidItemIdException e){
+                throw new InvalidItemIdException("The ItemId \"" + itemId + "\" is invalid, please check spelling and item ID." );
+            } catch (DatabaseFailureException e){
+                throw new DatabaseFailureException("The database can not be accessed. Try to reboot system.");
+            }
         }
         return isItemInList;
-    }
-
-    /**
-     * Get the current total for sale
-     */
-    public double getRunningTotal() {
-        return itemList.getPrice().getPrice();
-    }
-
-    public String getScannedItems() {
-        return itemList.getScannedItems();
     }
 
     /**
@@ -51,10 +49,22 @@ public class Sale {
     }
 
     /**
-     * Omitted in seminar 3.
+     * Get methods
      */
-    public void addDiscount(double discount) {
+    public ItemList getItemList() {
+        return itemList;
+    }
 
+    public ItemType getItemById(String itemId) {
+        return itemList.getItemTypeById(itemId);
+    }
+
+    public double getRunningTotal() {
+        return itemList.getPrice().getPrice();
+    }
+
+    public String getScannedItems() {
+        return itemList.getScannedItems();
     }
 
 }

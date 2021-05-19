@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents an itemlist with itemTypes.
+ * Represents an ItemList with itemTypes.
  */
 public class ItemList {
 
@@ -38,7 +38,7 @@ public class ItemList {
     public void addItemByQuantity(String itemId, int quantity) {
         for (ItemType currentItemType : items)
             if (currentItemType.getItemId().equals(itemId))
-                if (!currentItemType.addAndSubbToQuantity(quantity)) { //If item quantity = 0 delete item from list
+                if (!currentItemType.addAndSubToQuantity(quantity)) { //If item quantity = 0 delete item from list
                     items.remove(currentItemType);
                     break;
                 }
@@ -66,14 +66,21 @@ public class ItemList {
      * @param itemId specific item identifier.
      */
     public ItemType getItemTypeById(String itemId) {
+        int index = 0;
         for (ItemType currentItemType : items) {
             if (currentItemType.getItemId().equals(itemId)) {
-                return new ItemType(currentItemType);
+                return items.get(index);
             }
+            index++;
         }
         return null;
     }
 
+    /**
+     * Represent items scanned in to the system during current sale.
+     *
+     * @return string representing previously added items.
+     */
     public String getScannedItems() {
         StringBuilder string = new StringBuilder();
 
@@ -115,9 +122,11 @@ public class ItemList {
     }
 
     /**
-     * Omitted in seminar 3.
+     * Sets a specified discount to the total price object.
+     *
+     * @param discount the specific discount.
      */
     public void setDiscount(double discount) {
-
+        this.price.setDiscountByPercentage(discount);
     }
 }
