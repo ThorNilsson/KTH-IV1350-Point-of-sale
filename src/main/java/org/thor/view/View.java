@@ -64,7 +64,7 @@ public class View {
 
         System.out.printf("%-25s %10.2f kr %n", "To Pay:", controller.getRunningTotal());
 
-        double amountPaid = 2000;
+        double amountPaid = 2500;
         System.out.printf("%-25s %10.2f kr %n", "Customer pays:", amountPaid );
         controller.pay(controller.getRunningTotal(), amountPaid);
 

@@ -3,12 +3,12 @@ package org.thor.model;
 /**
  * Represent the interface of SaleObserver.
  */
-public interface SaleObserver {
+public interface ControllerPaymentObserver {
     /**
      * Updates the total revenue and prints to the view when observer is called.
      *
      * @param saleTotal the total of a specific sale.
      */
-    void updateTotalRevenue(double saleTotal);
-
+    void newSaleWasMade(double saleTotal);
 }
+

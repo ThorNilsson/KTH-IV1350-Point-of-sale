@@ -8,7 +8,7 @@ import org.thor.integration.InventoryCatalog;
 public class Sale {
 
     private final InventoryCatalog inventoryCatalog = new InventoryCatalog();
-    private ItemList itemList = new ItemList();
+    private ItemList itemList = ItemList.getInstance();
 
     /**
      * Creates a new instance, representing a sale.
